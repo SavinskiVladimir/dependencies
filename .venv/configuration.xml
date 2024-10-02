@@ -1,0 +1,6 @@
+<configuration>
+    <visualizationPath>/path/to/plantuml</visualizationPath>
+    <packagePath>/path/to/dependentlist.list</packagePath>
+    <outputPath>/path/to/output.puml</outputPath>
+    <maxDepth>3</maxDepth>
+</configuration>
