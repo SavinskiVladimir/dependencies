@@ -1,6 +1,5 @@
 <configuration>
-    <visualizationPath>/path/to/plantuml</visualizationPath>
-    <packagePath>/path/to/dependentlist.list</packagePath>
-    <outputPath>/path/to/output.puml</outputPath>
+    <packagePath>D:\дз\конф_управление\dependecies\.venv\APKBUILD.apkbuild</packagePath>
+    <outputPath>output.puml</outputPath>
     <maxDepth>3</maxDepth>
 </configuration>

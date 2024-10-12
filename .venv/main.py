@@ -3,11 +3,34 @@ import xml.etree.ElementTree as ET
 def parse_dependencies(apk_file):
     dependencies = {}
     with open(apk_file, 'r') as file:
+        current_pkg = None
+        in_multiline = False
+        temp_deps = ""
+
         for line in file:
-            if line.startswith("depends:"):
-                pkg_deps = line.split(":")[1].strip().split(",")
-                dependencies[apk_file] = [dep.strip() for dep in pkg_deps]
+            line = line.strip()
+            if line.startswith("pkgname="):
+                current_pkg = line.split("=")[1].strip()
+                dependencies[current_pkg] = []
+            elif line.startswith("depends="):
+                pkg_deps = line.split("=")[1].strip().strip('"')
+                if current_pkg:
+                    dependencies[current_pkg].extend(pkg_deps.split(","))
+            elif line.startswith("makedepends="):
+                if '"' in line:
+                    in_multiline = True
+                    temp_deps += line.split("=")[1].strip().strip('"')
+                else:
+                    temp_deps += line.split("=")[1].strip()
+            elif in_multiline:
+                temp_deps += " " + line.strip()
+                if line.endswith('"'):
+                    in_multiline = False
+                    if current_pkg:
+                        dependencies[current_pkg].extend(temp_deps[:-1].strip().split())
+                        temp_deps = ""
     return dependencies
+
 
 def get_transitive_dependencies(pkg, dependencies, visited=None):
     if visited is None:
@@ -33,7 +56,6 @@ def read_config(config_file):
     tree = ET.parse(config_file)
     root = tree.getroot()
     config = {
-        'visualizationPath': root.find('visualizationPath').text,
         'packagePath': root.find('packagePath').text,
         'outputPath': root.find('outputPath').text,
         'maxDepth': int(root.find('maxDepth').text)
@@ -42,7 +64,7 @@ def read_config(config_file):
 
 
 if __name__ == "__main__":
-    config = read_config('configuration.xml')
+    config = read_config('D:\дз\конф_управление\dependecies\.venv\configuration.xml')
 
     # парсинг зависимостей
     dependencies = parse_dependencies(config['packagePath'])
@@ -50,7 +72,7 @@ if __name__ == "__main__":
     # получение транзитивных зависимостей для каждого пакета
     all_transitive_deps = {}
     for pkg in dependencies.keys():
-        all_transitive_deps[pkg] = get_transitive_dependencies(pkg, dependencies, max_depth=config['maxDepth'])
+        all_transitive_deps[pkg] = get_transitive_dependencies(pkg, dependencies)
 
     # генерация PlantUML кода
     plantuml_code = generate_plantuml(all_transitive_deps)
