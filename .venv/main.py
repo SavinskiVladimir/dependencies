@@ -84,8 +84,6 @@ if __name__ == "__main__":
     plantuml_code = generate_plantuml(dependencies)
     print(plantuml_code)
 
-    # Сохранение PlantUML кода в файл
+    # сохранение PlantUML кода в файл
     with open(config['outputPath'], 'w') as f:
         f.write(plantuml_code)
-
-    print("PlantUML code generated and saved to", config['outputPath'])
