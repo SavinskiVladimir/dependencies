@@ -32,17 +32,17 @@ def parse_dependencies(apk_file):
     return dependencies
 
 
-def get_transitive_dependencies(pkg, dependencies, visited=None):
-    if visited is None:
-        visited = set()
-    if pkg in visited:
-        return []
-    visited.add(pkg)
-    transitive_deps = []
-    for dep in dependencies.get(pkg, []):
-        transitive_deps.append(dep)
-        transitive_deps.extend(get_transitive_dependencies(dep, dependencies, visited))
-    return transitive_deps
+# def get_transitive_dependencies(pkg, dependencies, visited=None):
+#     if visited is None:
+#         visited = set()
+#     if pkg in visited:
+#         return []
+#     visited.add(pkg)
+#     transitive_deps = []
+#     for dep in dependencies.get(pkg, []):
+#         transitive_deps.append(dep)
+#         transitive_deps.extend(get_transitive_dependencies(dep, dependencies, visited))
+#     return transitive_deps
 
 def generate_plantuml(dependencies):
     plantuml_code = "@startuml\n"
@@ -70,12 +70,12 @@ if __name__ == "__main__":
     dependencies = parse_dependencies(config['packagePath'])
 
     # получение транзитивных зависимостей для каждого пакета
-    all_transitive_deps = {}
-    for pkg in dependencies.keys():
-        all_transitive_deps[pkg] = get_transitive_dependencies(pkg, dependencies)
+    # all_transitive_deps = {}
+    # for pkg in dependencies.keys():
+    #     all_transitive_deps[pkg] = get_transitive_dependencies(pkg, dependencies)
 
     # генерация PlantUML кода
-    plantuml_code = generate_plantuml(all_transitive_deps)
+    plantuml_code = generate_plantuml(dependencies)
     print(plantuml_code)
 
     # Сохранение PlantUML кода в файл

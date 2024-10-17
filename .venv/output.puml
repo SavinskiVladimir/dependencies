@@ -1,0 +1,8 @@
+@startuml
+apcupsd --> util-linux
+apcupsd --> gd-dev
+apcupsd --> libusb-compat-dev
+apcupsd --> linux-headers
+apcupsd --> mandoc
+apcupsd --> net-snmp-dev
+@enduml
