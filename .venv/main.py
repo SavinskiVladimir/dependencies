@@ -1,34 +1,40 @@
 import xml.etree.ElementTree as ET
 
 def parse_dependencies(apk_file):
-    dependencies = {}
+    dependencies = {} # словарь для хранения полученных зависимостей
     with open(apk_file, 'r') as file:
         current_pkg = None
-        in_multiline = False
-        temp_deps = ""
-
+        in_multiline = False # флаг, показывающий, что обрабатываемый объект имеет несколько построчно записанных зависимостей
+        temp_deps = "" # строка для хранения построчно записанных зависимостей
         for line in file:
             line = line.strip()
-            if line.startswith("pkgname="):
+            if line.startswith("pkgname="): # получение имени очередного пакета
                 current_pkg = line.split("=")[1].strip()
-                dependencies[current_pkg] = []
-            elif line.startswith("depends="):
-                pkg_deps = line.split("=")[1].strip().strip('"')
-                if current_pkg:
-                    dependencies[current_pkg].extend(pkg_deps.split(","))
-            elif line.startswith("makedepends="):
+                dependencies[current_pkg] = [] # добавление в словарь пары: пакет - список его зависимостей
+            elif line.startswith("depends="): # обработка зависимостей
+                if '"' in line: # если строка содержит " - значит зависимостей несколько и они записаны построчно
+                    in_multiline = True
+                    temp_deps += line.split("=")[1].strip().strip('"') # добавление зависимости из первой строки
+                else:
+                    temp_deps += line.split("=")[1].strip() # добавление единственной зависимости
+            elif line.startswith("makedepends="): # обработка зависимостей сборки
                 if '"' in line:
                     in_multiline = True
                     temp_deps += line.split("=")[1].strip().strip('"')
                 else:
                     temp_deps += line.split("=")[1].strip()
-            elif in_multiline:
-                temp_deps += " " + line.strip()
-                if line.endswith('"'):
+            elif in_multiline: # если идёт обработка построчных зависимостей
+                temp_deps += " " + line.strip() # добавление очередной зависимости
+                if line.endswith('"'): # окончанием перечисления служит символ "
                     in_multiline = False
                     if current_pkg:
+                        # добавление в список всех зависимостей зависимостей для текущего пакета
                         dependencies[current_pkg].extend(temp_deps[:-1].strip().split())
                         temp_deps = ""
+            elif not in_multiline and temp_deps != "": # если была только одна зависимость
+                dependencies[current_pkg].extend(temp_deps)
+                temp_deps = ""
+
     return dependencies
 
 
